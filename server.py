@@ -219,14 +219,30 @@ def add_markdown_quotes(text):
     return '\n'.join(split_desc)
 
 if __name__ == "__main__":
-    MATTERMOST_WEBHOOK_URL = os.environ.get('MATTERMOST_WEBHOOK_URL', '')
-    CHANNEL = os.environ.get('CHANNEL', CHANNEL)
-    USERNAME = os.environ.get('USERNAME', USERNAME)
-    ICON_URL = os.environ.get('ICON_URL', ICON_URL)
+    # Read configuration from JSON
+    if not os.path.exists('config.json'):
+        print 'config.json missing. Please see instructions in README.md'
+        sys.exit()
 
+    try:
+        config = json.load(open('config.json'))
+    except:
+        print "config.json is malformed"
+        sys.exit()
+
+    if 'port' not in config.keys() \
+            or not isinstance(config['port'], int) \
+            or config['port'] not in range(0, 65536):
+        print 'Missing or malformed port. Must be an integer [0..65535]'
+        sys.exit()
+    port = config['port']
+    USERNAME = config['username']
+    ICON_URL = config['icon_url']
+    CHANNEL = config['channel_name']
+
+    MATTERMOST_WEBHOOK_URL = config['webhook_url']
     if len(MATTERMOST_WEBHOOK_URL) == 0:
         print 'MATTERMOST_WEBHOOK_URL must be configured. Please see instructions in README.md'
         sys.exit()
 
-    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
