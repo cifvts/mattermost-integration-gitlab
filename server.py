@@ -19,14 +19,6 @@ TAG_EVENT = 'tag_push'
 COMMENT_EVENT = 'note'
 MERGE_EVENT = 'merge_request'
 
-REPORT_EVENTS = {
-    PUSH_EVENT: False, # On pushes to the repository excluding tags
-    ISSUE_EVENT: True, # On creation of a new issue
-    TAG_EVENT: False, # On creation of tags
-    COMMENT_EVENT: True, # When a new comment is made on commits, merge requests, issues, and code snippets
-    MERGE_EVENT: True, # When a merge request is created
-}
-
 @app.route('/')
 def root():
     """
@@ -51,7 +43,7 @@ def new_event():
     text = ''
     base_url = ''
 
-    if REPORT_EVENTS[PUSH_EVENT] and  object_kind == PUSH_EVENT:
+    if object_kind == PUSH_EVENT:
         text = '%s pushed %d commit(s) into the `%s` branch for project [%s](%s).' % (
             data['user_name'],
             data['total_commits_count'],
@@ -59,7 +51,7 @@ def new_event():
             data['repository']['name'],
             data['repository']['homepage']
         )
-    elif REPORT_EVENTS[ISSUE_EVENT] and object_kind == ISSUE_EVENT:
+    elif object_kind == ISSUE_EVENT:
         action = data['object_attributes']['action']
 
         if action == 'open' or action == 'reopen':
@@ -79,14 +71,14 @@ def new_event():
             )
 
             base_url = data['repository']['homepage']
-    elif REPORT_EVENTS[TAG_EVENT] and object_kind == TAG_EVENT:
+    elif object_kind == TAG_EVENT:
         text = '%s pushed tag `%s` to the project [%s](%s).' % (
             data['user_name'],
             data['ref'],
             data['repository']['name'],
             data['repository']['homepage']
         )
-    elif REPORT_EVENTS[COMMENT_EVENT] and object_kind == COMMENT_EVENT:
+    elif object_kind == COMMENT_EVENT:
         symbol = ''
         type_grammar = 'a'
         note_type = data['object_attributes']['noteable_type'].lower()
@@ -131,7 +123,7 @@ def new_event():
         )
 
         base_url = data['repository']['homepage']
-    elif REPORT_EVENTS[MERGE_EVENT] and object_kind == MERGE_EVENT:
+    elif object_kind == MERGE_EVENT:
         action = data['object_attributes']['action']
 
         if action == 'open':
@@ -231,12 +223,6 @@ if __name__ == "__main__":
     CHANNEL = os.environ.get('CHANNEL', CHANNEL)
     USERNAME = os.environ.get('USERNAME', USERNAME)
     ICON_URL = os.environ.get('ICON_URL', ICON_URL)
-
-    REPORT_EVENTS[PUSH_EVENT] = os.environ.get('PUSH_TRIGGER', str(REPORT_EVENTS[PUSH_EVENT])) == 'True'
-    REPORT_EVENTS[ISSUE_EVENT] = os.environ.get('ISSUE_TRIGGER', str(REPORT_EVENTS[ISSUE_EVENT])) == 'True'
-    REPORT_EVENTS[TAG_EVENT] = os.environ.get('TAG_TRIGGER', str(REPORT_EVENTS[TAG_EVENT])) == 'True'
-    REPORT_EVENTS[COMMENT_EVENT] = os.environ.get('COMMENT_TRIGGER', str(REPORT_EVENTS[COMMENT_EVENT])) == 'True'
-    REPORT_EVENTS[MERGE_EVENT] = os.environ.get('MERGE_TRIGGER', str(REPORT_EVENTS[MERGE_EVENT])) == 'True'
 
     if len(MATTERMOST_WEBHOOK_URL) == 0:
         print 'MATTERMOST_WEBHOOK_URL must be configured. Please see instructions in README.md'
