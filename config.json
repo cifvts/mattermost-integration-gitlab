@@ -1,0 +1,7 @@
+{
+    "webhook_url": "",
+    "port": 5000,
+    "username": "gitlab",
+    "icon_url": "https://gitlab.com/uploads/project/avatar/13083/gitlab-logo-square.png",
+    "channel_name": ""
+}
