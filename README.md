@@ -83,13 +83,11 @@ Here's how to start:
     - `cd mattermost-integration-gitlab`
  6. Install integration requirements:
     - `sudo pip install -r requirements.txt`
- 7. Add the following lines to your `~/.bash_profile`:
-    - `export MATTERMOST_WEBHOOK_URL=https://<your-mattermost-webhook-URL>` This is the URL you copied in the last section
-    - `export PUSH_TRIGGER=True`
-    - `export PORT=<your-port-number>` The port number you want the integration to listen on (defaults to 5000)
- 8. Source your bash profile:
-    - `source ~/.bash_profile`
- 9. Run the server:
+ 7. Edit `config.json`:
+    - Set `"webhook_url": "<your-mattermost-webhook-URL>"` This is the URL you copied in the last section
+    - Set `"channel": "<channel_name>"` if you want to use another channel instead of the one configured in the Incoming Webhook creation
+    - Set `"port": <port>" if you want to run multiple integrations or multiple instances of the server on the same machine
+ 8. Run the server:
     - `python server.py`
 
 3. **Connect your project to your GitLab account for outgoing webhooks**
@@ -102,5 +100,22 @@ Here's how to start:
 4. **Test your webhook integration**
   1. If your GitLab project is in active development, return to the **Settings** > **Web Hooks** page of your GitLab project and click **Test Hook** to send a test message about one of your recent updates from your GitLab project to Mattermost. You should see a notification on the Gitlab page that the hook was successfully executed. In Mattermost, go to the channel which you specified when creating the URL for your incoming webhook and make sure that the message delivered successfully.
   2. If your GitLab project is new, try creating a test issue and then verify that the issue is posted to Mattermost.
-  3. Remove the `export PUSH_TRIGGER=True` line from your `~/.bash_profile` and source it again `source ~/.bash_profile`. This was used for testing only, and is better left turned off for production
-  4. If you have any issues, please go to http://forum.mattermost.org and let us know which steps in these instructions were unclear or didn't work.
+  3. If you have any issues, please go to http://forum.mattermost.org and let us know which steps in these instructions were unclear or didn't work.
+
+### `config.json` explained
+
+```
+{
+    "webhook_url": ""
+    "port": 5000,
+    "username": "gitlab",
+    "icon_url": "https://gitlab.com/uploads/project/avatar/13083/gitlab-logo-square.png",
+    "channel_name": "",
+}
+```
+
+* `webhook_url`: the Incoming Webhooks, ***mandatory***
+* `port`: the IP port where the server bind to listen to incoming Webhooks (server listen to **0.0.0.0** by default), ***mandatory***
+* `username`: the username used by the server, if is **Enable Overriding of Usernames from Webhooks**, ***optional***
+* `icon_url`: image used by the server, if is **Enable Overriding of Icon from Webhooks**, ***optional***
+* `channel_name`: target channel for the incoming Webhooks. Can be blank, target will be the channel set up on Incoming Webhooks setup, ***optional***
