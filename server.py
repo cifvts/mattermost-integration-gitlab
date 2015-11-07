@@ -57,7 +57,7 @@ def new_event():
         if action == 'open' or action == 'reopen':
             description = add_markdown_quotes(data['object_attributes']['description'])
 
-            text = '#### [%s](%s)\n*[Issue #%s](%s/issues) created by %s in [%s](%s) on [%s](%s)*\n %s' % (
+            text = '##### [%s](%s)\n*[Issue #%s](%s/issues) created by %s in [%s](%s) on [%s](%s)*\n %s' % (
                 data['object_attributes']['title'],
                 data['object_attributes']['url'],
                 data['object_attributes']['iid'],
@@ -108,7 +108,7 @@ def new_event():
 
         description = add_markdown_quotes(data['object_attributes']['note'])
 
-        text = '#### **New Comment** on [%s](%s)\n*[%s](https://gitlab.com/u/%s) commented on %s %s in [%s](%s) on [%s](%s)*\n %s' % (
+        text = '##### **New Comment** on [%s](%s)\n*[%s](https://gitlab.com/u/%s) commented on %s %s in [%s](%s) on [%s](%s)*\n %s' % (
             subtitle,
             data['object_attributes']['url'],
             data['user']['username'],
@@ -137,7 +137,7 @@ def new_event():
         elif action == 'close':
             text_action = 'closed a'
 
-        text = '#### [!%s - %s](%s)\n*[%s](https://gitlab.com/u/%s) %s merge request in [%s](%s) on [%s](%s)*' % (
+        text = '##### [!%s - %s](%s)\n*[%s](https://gitlab.com/u/%s) %s merge request in [%s](%s) on [%s](%s)*' % (
             data['object_attributes']['iid'],
             data['object_attributes']['title'],
             data['object_attributes']['url'],
