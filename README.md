@@ -111,6 +111,8 @@ Here's how to start:
     "username": "gitlab",
     "icon_url": "https://gitlab.com/uploads/project/avatar/13083/gitlab-logo-square.png",
     "channel_name": "",
+    "routing": {
+    }
 }
 ```
 
@@ -119,3 +121,11 @@ Here's how to start:
 * `username`: the username used by the server, if is **Enable Overriding of Usernames from Webhooks**, ***optional***
 * `icon_url`: image used by the server, if is **Enable Overriding of Icon from Webhooks**, ***optional***
 * `channel_name`: target channel for the incoming Webhooks. Can be blank, target will be the channel set up on Incoming Webhooks setup, ***optional***
+* `routing`: it contains a the routing to allow Incoming Webhooks from specific projects to be sent in specific channels:
+```
+"routing": {
+    "project1": "channel1",
+    "project2": "channel2"
+}
+```
+If project do not have any specific routing rule, it will use default `channel_name`

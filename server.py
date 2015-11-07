@@ -12,6 +12,7 @@ USERNAME = 'gitlab'
 ICON_URL = 'https://gitlab.com/uploads/project/avatar/13083/gitlab-logo-square.png'
 MATTERMOST_WEBHOOK_URL = '' # Paste the Mattermost webhook URL you created here
 CHANNEL = '' # Leave this blank to post to the default channel of your webhook
+ROUTING = []
 
 PUSH_EVENT = 'push'
 ISSUE_EVENT = 'issue'
@@ -166,11 +167,21 @@ def new_event():
     if len(base_url) != 0:
         text = fix_gitlab_links(base_url, text)
 
-    post_text(text)
+    # Route to channel, if configured
+    channel = ''
+    if ROUTING:
+        if object_kind == MERGE_EVENT:
+            repo = data['object_attributes']['target']['name']
+        else:
+            repo = data['repository']['name']
+        if repo in ROUTING.keys():
+            channel = ROUTING[repo]
+
+    post_text(text, channel)
 
     return 'OK'
 
-def post_text(text):
+def post_text(text, channel):
     """
     Mattermost POST method, posts text to the Mattermost incoming webhook URL
     """
@@ -181,8 +192,11 @@ def post_text(text):
         data['username'] = USERNAME
     if len(ICON_URL) > 0:
         data['icon_url'] = ICON_URL
-    if len(CHANNEL) > 0:
+    if len(channel) == 0:
+        # Use default for Webhook
         data['channel'] = CHANNEL
+    else:
+        data['channel'] = channel
 
     headers = {'Content-Type': 'application/json'}
     r = requests.post(MATTERMOST_WEBHOOK_URL, headers=headers, data=json.dumps(data))
@@ -243,6 +257,9 @@ if __name__ == "__main__":
         ICON_URL = config['icon_url']
     if 'channel_name' in config.keys():
         CHANNEL = config['channel_name']
+
+    if 'routing' in config.keys():
+        ROUTING = config['routing']
 
     if 'webhook_url' in config.keys() and len(config['webhook_url']) == 0:
         print 'Missing Mattermost Webhook Url. Please see instructions in README.md'
