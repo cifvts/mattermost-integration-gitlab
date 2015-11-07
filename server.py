@@ -236,9 +236,13 @@ if __name__ == "__main__":
         print 'Missing or malformed port. Must be an integer [0..65535]'
         sys.exit()
     port = config['port']
-    USERNAME = config['username']
-    ICON_URL = config['icon_url']
-    CHANNEL = config['channel_name']
+    # If some keys are missing in config, use default values defined above
+    if 'username' in config.keys():
+        USERNAME = config['username']
+    if 'icon_url' in config.keys():
+        ICON_URL = config['icon_url']
+    if 'channel_name' in config.keys():
+        CHANNEL = config['channel_name']
 
     MATTERMOST_WEBHOOK_URL = config['webhook_url']
     if len(MATTERMOST_WEBHOOK_URL) == 0:
