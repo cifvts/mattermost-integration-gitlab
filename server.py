@@ -244,9 +244,11 @@ if __name__ == "__main__":
     if 'channel_name' in config.keys():
         CHANNEL = config['channel_name']
 
-    MATTERMOST_WEBHOOK_URL = config['webhook_url']
-    if len(MATTERMOST_WEBHOOK_URL) == 0:
-        print 'MATTERMOST_WEBHOOK_URL must be configured. Please see instructions in README.md'
+    if 'webhook_url' in config.keys() and len(config['webhook_url']) == 0:
+        print 'Missing Mattermost Webhook Url. Please see instructions in README.md'
         sys.exit()
+    else:
+        MATTERMOST_WEBHOOK_URL = config['webhook_url']
+
 
     app.run(host='0.0.0.0', port=port)
