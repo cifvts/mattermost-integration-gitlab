@@ -13,6 +13,7 @@ ICON_URL = 'https://gitlab.com/uploads/project/avatar/13083/gitlab-logo-square.p
 MATTERMOST_WEBHOOK_URL = '' # Paste the Mattermost webhook URL you created here
 CHANNEL = '' # Leave this blank to post to the default channel of your webhook
 ROUTING = []
+MATTERMOST_TOKEN = ''
 
 PUSH_EVENT = 'push'
 ISSUE_EVENT = 'issue'
@@ -27,6 +28,41 @@ def root():
     """
 
     return "OK"
+
+@app.route('/new_post', methods=['POST'])
+def new_post():
+    """
+    Mattermost new post event handler
+    """
+
+    data = request.form
+
+    if data['token'] != MATTERMOST_TOKEN:
+        print 'Tokens did not match, it is possible that this request came from somewhere other than Mattermost'
+        return 'OK'
+
+    translate_text = data['text'][len(data['trigger_word']):]
+
+    if len(translate_text) == 0:
+        print "No command provided, abort"
+        return 'OK'
+
+    parse = translate_text.split(' ')
+
+    if parse[0] == 'help':
+        text = text_help()
+    else:
+        text = ':-( Unknown command\n'
+
+    resp_data = {}
+    resp_data['text'] = text
+    resp_data['username'] = USERNAME
+    resp_data['icon_url'] = ICON_URL
+
+    resp = Response(content_type='application/json')
+    resp.set_data(json.dumps(resp_data))
+
+    return resp
 
 @app.route('/new_event', methods=['POST'])
 def new_event():
@@ -232,6 +268,11 @@ def add_markdown_quotes(text):
 
     return '\n'.join(split_desc)
 
+def text_help():
+    return "```Commands available:", \
+            "\thelp: Show this help", \
+            "```"
+
 if __name__ == "__main__":
     # Read configuration from JSON
     if not os.path.exists('config.json'):
@@ -260,6 +301,9 @@ if __name__ == "__main__":
 
     if 'routing' in config.keys():
         ROUTING = config['routing']
+
+    if 'token' in config.keys():
+        MATTERMOST_TOKEN = config['token']
 
     if 'webhook_url' in config.keys() and len(config['webhook_url']) == 0:
         print 'Missing Mattermost Webhook Url. Please see instructions in README.md'
